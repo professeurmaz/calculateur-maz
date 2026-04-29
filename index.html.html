@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur de Métabolisme — Le Labo de Maz</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --noir: #0a0a0a;
+    --blanc: #f5f2ec;
+    --accent: #e8461a;
+    --accent2: #f2a93b;
+    --gris: #1a1a1a;
+    --gris2: #2a2a2a;
+    --texte-clair: #888;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--noir);
+    color: var(--blanc);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .label-top {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 80px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    color: var(--blanc);
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    margin-top: 16px;
+    color: var(--texte-clair);
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* FORM */
+  .form-card {
+    background: var(--gris);
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    padding: 40px;
+    margin-bottom: 32px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--texte-clair);
+    font-weight: 500;
+  }
+
+  input, select {
+    background: var(--noir);
+    border: 1px solid #333;
+    border-radius: 2px;
+    color: var(--blanc);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--accent);
+  }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+  }
+
+  /* SEXE TOGGLE */
+  .sexe-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid #333;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .sexe-toggle input[type="radio"] {
+    display: none;
+  }
+
+  .sexe-toggle label {
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--noir);
+    color: var(--texte-clair);
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .sexe-toggle input[type="radio"]:checked + label {
+    background: var(--accent);
+    color: var(--blanc);
+  }
+
+  /* BTN */
+  .btn-calc {
+    width: 100%;
+    margin-top: 32px;
+    background: var(--accent);
+    color: var(--blanc);
+    border: none;
+    border-radius: 2px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-calc:hover {
+    background: #c73a15;
+    transform: translateY(-1px);
+  }
+
+  .btn-calc:active {
+    transform: translateY(0);
+  }
+
+  /* RÉSULTATS */
+  .results {
+    display: none;
+    animation: fadeUp 0.4s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .results-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+  }
+
+  .divider {
+    flex: 1;
+    height: 1px;
+    background: #2a2a2a;
+  }
+
+  /* BMR HIGHLIGHT */
+  .bmr-highlight {
+    background: linear-gradient(135deg, var(--gris2) 0%, #1f1f1f 100%);
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .bmr-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .bmr-desc {
+    font-size: 13px;
+    color: var(--texte-clair);
+    max-width: 360px;
+    line-height: 1.5;
+  }
+
+  .bmr-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    color: var(--accent);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .bmr-value span {
+    font-size: 20px;
+    color: var(--texte-clair);
+  }
+
+  /* TABLE */
+  .table-title {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--texte-clair);
+    margin-bottom: 16px;
+  }
+
+  .tdee-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .tdee-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 18px 24px;
+    border: 1px solid #222;
+    border-bottom: none;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tdee-row:first-child { border-radius: 2px 2px 0 0; }
+  .tdee-row:last-child { border-bottom: 1px solid #222; border-radius: 0 0 2px 2px; }
+
+  .tdee-row:hover {
+    background: #1a1a1a;
+  }
+
+  .tdee-row.active-row {
+    background: #1a1a1a;
+    border-color: var(--accent2);
+  }
+
+  .tdee-row.active-row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent2);
+  }
+
+  .row-left {}
+
+  .row-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--blanc);
+    margin-bottom: 2px;
+  }
+
+  .row-name.active-name {
+    color: var(--accent2);
+  }
+
+  .active-badge {
+    display: inline-block;
+    background: var(--accent2);
+    color: var(--noir);
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 1px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .row-desc {
+    font-size: 11px;
+    color: var(--texte-clair);
+  }
+
+  .row-cal {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--blanc);
+    text-align: right;
+  }
+
+  .row-cal span {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    color: var(--texte-clair);
+    display: block;
+    text-align: right;
+    margin-top: -4px;
+  }
+
+  .row-cal.active-cal {
+    color: var(--accent2);
+  }
+
+  /* NOTE */
+  .note {
+    margin-top: 24px;
+    padding: 20px 24px;
+    background: #111;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 2px 2px 0;
+    font-size: 12px;
+    color: var(--texte-clair);
+    line-height: 1.7;
+  }
+
+  .note strong {
+    color: var(--blanc);
+  }
+
+  /* CTA */
+  .cta-block {
+    margin-top: 32px;
+    background: linear-gradient(135deg, var(--accent) 0%, #c73a15 100%);
+    border-radius: 2px;
+    padding: 32px;
+    text-align: center;
+  }
+
+  .cta-block h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .cta-block p {
+    font-size: 13px;
+    opacity: 0.85;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    background: var(--noir);
+    color: var(--blanc);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    padding: 14px 32px;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .cta-btn:hover { opacity: 0.85; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .form-card { padding: 24px 20px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-group.full-width { grid-column: 1; }
+    .bmr-highlight { flex-direction: column; text-align: center; }
+    .bmr-value { font-size: 48px; }
+    .tdee-row { padding: 14px 16px; }
+    .row-cal { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <span class="label-top">Le Labo de Maz — Outil gratuit</span>
+    <h1>Ton <span>métabolisme</span><br>en chiffres</h1>
+    <p class="subtitle">Calcule ton métabolisme de base et tes besoins caloriques réels selon l'équation de Mifflin-St Jeor — la référence scientifique.</p>
+  </div>
+
+  <!-- FORMULAIRE -->
+  <div class="form-card">
+    <div class="form-grid">
+
+      <!-- SEXE -->
+      <div class="form-group full-width">
+        <label>Sexe</label>
+        <div class="sexe-toggle">
+          <input type="radio" id="homme" name="sexe" value="homme" checked>
+          <label for="homme">Homme</label>
+          <input type="radio" id="femme" name="sexe" value="femme">
+          <label for="femme">Femme</label>
+        </div>
+      </div>
+
+      <!-- ÂGE -->
+      <div class="form-group">
+        <label>Âge (années)</label>
+        <input type="number" id="age" placeholder="30" min="15" max="90">
+      </div>
+
+      <!-- POIDS -->
+      <div class="form-group">
+        <label>Poids (kg)</label>
+        <input type="number" id="poids" placeholder="75" min="30" max="250">
+      </div>
+
+      <!-- TAILLE -->
+      <div class="form-group">
+        <label>Taille (cm)</label>
+        <input type="number" id="taille" placeholder="175" min="100" max="230">
+      </div>
+
+      <!-- ACTIVITÉ -->
+      <div class="form-group">
+        <label>Activité physique actuelle</label>
+        <select id="activite">
+          <option value="sedentaire">Sédentaire</option>
+          <option value="leger">Exercices légers (1-2x/semaine)</option>
+          <option value="modere">Exercices modérés (3-4x/semaine)</option>
+          <option value="lourd">Exercices lourds (4-6x/semaine)</option>
+          <option value="athlete">Athlète (2x/jour)</option>
+        </select>
+      </div>
+
+    </div>
+
+    <button class="btn-calc" onclick="calculer()">Calculer mon métabolisme →</button>
+  </div>
+
+  <!-- RÉSULTATS -->
+  <div class="results" id="results">
+
+    <div class="results-header">
+      <h2>Tes résultats</h2>
+      <div class="divider"></div>
+    </div>
+
+    <!-- BMR -->
+    <div class="bmr-highlight">
+      <div>
+        <div class="bmr-label">Métabolisme de base (BMR)</div>
+        <div class="bmr-desc">C'est le nombre de calories que ton corps brûle au repos, sans aucune activité. Même allongé toute la journée, tu brûles ce nombre de calories.</div>
+      </div>
+      <div class="bmr-value" id="bmr-display">— <span>kcal/jour</span></div>
+    </div>
+
+    <!-- TABLEAU TDEE -->
+    <div class="table-title">Calories de maintien selon ton activité</div>
+
+    <div id="tdee-table">
+      <div class="tdee-row" id="row-sedentaire">
+        <div class="row-left">
+          <div class="row-name" id="name-sedentaire">Sédentaire</div>
+          <div class="row-desc">Peu ou pas d'exercice — travail de bureau</div>
+        </div>
+        <div class="row-cal" id="cal-sedentaire">—<span>kcal/jour</span></div>
+      </div>
+
+      <div class="tdee-row" id="row-leger">
+        <div class="row-left">
+          <div class="row-name" id="name-leger">Exercices légers</div>
+          <div class="row-desc">1 à 2 séances par semaine</div>
+        </div>
+        <div class="row-cal" id="cal-leger">—<span>kcal/jour</span></div>
+      </div>
+
+      <div class="tdee-row" id="row-modere">
+        <div class="row-left">
+          <div class="row-name" id="name-modere">Exercices modérés</div>
+          <div class="row-desc">3 à 4 séances par semaine</div>
+        </div>
+        <div class="row-cal" id="cal-modere">—<span>kcal/jour</span></div>
+      </div>
+
+      <div class="tdee-row" id="row-lourd">
+        <div class="row-left">
+          <div class="row-name" id="name-lourd">Exercices lourds</div>
+          <div class="row-desc">4 à 6 séances intenses par semaine</div>
+        </div>
+        <div class="row-cal" id="cal-lourd">—<span>kcal/jour</span></div>
+      </div>
+
+      <div class="tdee-row" id="row-athlete">
+        <div class="row-left">
+          <div class="row-name" id="name-athlete">Athlète</div>
+          <div class="row-desc">Entraînement 2x/jour ou travail physique intense</div>
+        </div>
+        <div class="row-cal" id="cal-athlete">—<span>kcal/jour</span></div>
+      </div>
+    </div>
+
+    <!-- NOTE -->
+    <div class="note">
+      <strong>Comment lire ces chiffres ?</strong> La ligne surlignée correspond à ton niveau d'activité actuel — c'est ton <strong>seuil de maintien</strong>. En dessous = tu perds du poids. Au-dessus = tu en prends. Ces valeurs sont calculées via l'équation de <strong>Mifflin-St Jeor</strong> multipliée par le TDEE, la méthode de référence scientifique.
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-block">
+      <h3>Tu veux aller plus loin ?</h3>
+      <p>Maintenant que tu connais tes chiffres, apprends à les utiliser pour transformer ton corps durablement — sans te priver.</p>
+      <a href="https://www.le-labo-de-maz.ch" class="cta-btn">Découvrir Le Code →</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const niveaux = {
+    sedentaire: { facteur: 1.2,   label: "Sédentaire",              desc: "Peu ou pas d'exercice — travail de bureau" },
+    leger:      { facteur: 1.375, label: "Exercices légers",         desc: "1 à 2 séances par semaine" },
+    modere:     { facteur: 1.55,  label: "Exercices modérés",        desc: "3 à 4 séances par semaine" },
+    lourd:      { facteur: 1.725, label: "Exercices lourds",         desc: "4 à 6 séances intenses par semaine" },
+    athlete:    { facteur: 1.9,   label: "Athlète",                  desc: "Entraînement 2x/jour ou travail physique intense" },
+  };
+
+  function calculer() {
+    const sexe   = document.querySelector('input[name="sexe"]:checked').value;
+    const age    = parseFloat(document.getElementById('age').value);
+    const poids  = parseFloat(document.getElementById('poids').value);
+    const taille = parseFloat(document.getElementById('taille').value);
+    const actif  = document.getElementById('activite').value;
+
+    // Validation
+    if (!age || !poids || !taille || age < 15 || poids < 30 || taille < 100) {
+      alert("Vérifie que tous les champs sont bien remplis avec des valeurs réalistes.");
+      return;
+    }
+
+    // Mifflin-St Jeor
+    let bmr;
+    if (sexe === 'homme') {
+      bmr = 10 * poids + 6.25 * taille - 5 * age + 5;
+    } else {
+      bmr = 10 * poids + 6.25 * taille - 5 * age - 161;
+    }
+
+    bmr = Math.round(bmr);
+
+    // Afficher BMR
+    document.getElementById('bmr-display').innerHTML = `${bmr.toLocaleString('fr-FR')} <span>kcal/jour</span>`;
+
+    // Réinitialiser les rows
+    Object.keys(niveaux).forEach(key => {
+      const row  = document.getElementById(`row-${key}`);
+      const name = document.getElementById(`name-${key}`);
+      const cal  = document.getElementById(`cal-${key}`);
+
+      row.classList.remove('active-row');
+      name.classList.remove('active-name');
+      cal.classList.remove('active-cal');
+
+      // Retirer badge si présent
+      const badge = name.querySelector('.active-badge');
+      if (badge) badge.remove();
+
+      const tdee = Math.round(bmr * niveaux[key].facteur);
+      cal.innerHTML = `${tdee.toLocaleString('fr-FR')}<span>kcal/jour</span>`;
+    });
+
+    // Surligner le niveau actif
+    const rowActif  = document.getElementById(`row-${actif}`);
+    const nameActif = document.getElementById(`name-${actif}`);
+    const calActif  = document.getElementById(`cal-${actif}`);
+
+    rowActif.classList.add('active-row');
+    nameActif.classList.add('active-name');
+    calActif.classList.add('active-cal');
+
+    // Badge "Ton niveau"
+    const badge = document.createElement('span');
+    badge.className = 'active-badge';
+    badge.textContent = 'Ton niveau';
+    nameActif.appendChild(badge);
+
+    // Afficher les résultats
+    const results = document.getElementById('results');
+    results.style.display = 'block';
+    results.style.animation = 'none';
+    results.offsetHeight; // reflow
+    results.style.animation = 'fadeUp 0.4s ease forwards';
+
+    // Scroll vers les résultats
+    setTimeout(() => {
+      results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+
+  // Permettre la touche Enter
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') calculer();
+  });
+</script>
+
+</body>
+</html>
